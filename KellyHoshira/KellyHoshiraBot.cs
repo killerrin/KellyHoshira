@@ -71,11 +71,12 @@ namespace KellyHoshira
 
             m_commandService.CreateCommand("owner")
                 .Alias(new string[] { "master", "credits" })
-                .Description("Echo's back what is said")
-                .Parameter("WhatToSay", ParameterType.Unparsed)
+                .Description("Information about Kelly Hoshira")
                 .Do(async e =>
                 {
-                    await e.Channel.SendMessage(e.GetArg("WhatToSay"));
+                    await e.Channel.SendMessage($"Created By: @killerrin");
+                    await e.Channel.SendMessage($"My website is here: https://killerrin.github.io/KellyHoshira/");
+                    await e.Channel.SendMessage($"View my source code here: https://github.com/killerrin/KellyHoshira");
                 });
 
         }
