@@ -68,6 +68,16 @@ namespace KellyHoshira
                 {
                     await e.Channel.SendMessage(e.GetArg("WhatToSay"));
                 });
+
+            m_commandService.CreateCommand("owner")
+                .Alias(new string[] { "master", "credits" })
+                .Description("Echo's back what is said")
+                .Parameter("WhatToSay", ParameterType.Unparsed)
+                .Do(async e =>
+                {
+                    await e.Channel.SendMessage(e.GetArg("WhatToSay"));
+                });
+
         }
         private void SetupFunCommands()
         {
@@ -113,7 +123,7 @@ namespace KellyHoshira
                 });
 
             m_commandService.CreateCommand("coinToss")
-                .Alias(new string[] { "coin", "coinFlip" })
+                .Alias(new string[] { "coin", "coinFlip", "flipCoin", "tossCoin" })
                 .Description("Tosses a coin ... ex: `coinToss` OR `coinToss -s`")
                 .Parameter("Flag", ParameterType.Optional)
                 .Do(async e =>

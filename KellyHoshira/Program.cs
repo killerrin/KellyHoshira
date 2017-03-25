@@ -10,6 +10,7 @@ namespace KellyHoshira
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Kelly Hoshira");
             KellyHoshiraBot bot = new KellyHoshiraBot();
             bot.Run();
         }
