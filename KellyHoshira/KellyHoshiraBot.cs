@@ -22,7 +22,7 @@ namespace KellyHoshira
         public KellyHoshiraBot()
         {
             DiscordConfigBuilder config = new DiscordConfigBuilder();
-            config.AppName = "KellyHoshira";
+            config.AppName = "Kelly Hoshira";
             config.AppUrl = "https://github.com/killerrin/KellyHoshira";
             config.AppVersion = "1.0";
             config.LogLevel = LogSeverity.Info;
