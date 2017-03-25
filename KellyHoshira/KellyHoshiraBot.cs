@@ -11,6 +11,10 @@ namespace KellyHoshira
 {
     public class KellyHoshiraBot
     {
+        public const string APP_NAME = "Kelly Hoshira";
+        public const string CLIENT_ID = "294889055663947776";
+        public const string APP_BOT_USER_NAME = "KellyHoshira#1789";
+        public const string APP_BOT_USER_TOKEN = "Mjk0ODg5MDU1NjYzOTQ3Nzc2.C7dx-Q.BbipBYQMm5ixqoc95v0OoulFxkg";
 
         private DiscordClient m_client;
         private CommandService m_commandService;
@@ -192,7 +196,7 @@ namespace KellyHoshira
         {
             m_client.ExecuteAndWait(async () =>
             {
-                await m_client.Connect("Mjk0ODg5MDU1NjYzOTQ3Nzc2.C7btfQ.MgaU7lzmOMkCGVaXz_3ijHZm6F0", TokenType.Bot);
+                await m_client.Connect(APP_BOT_USER_TOKEN, TokenType.Bot);
             });
         }
 
