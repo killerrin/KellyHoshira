@@ -4,8 +4,10 @@ using FunSharp.Core.Games.Randomized;
 using FunSharp.Core.Games.Strawpoll;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace KellyHoshira
@@ -77,7 +79,7 @@ namespace KellyHoshira
                 });
 
             m_commandService.CreateCommand("owner")
-                .Alias(new string[] { "master", "credits" })
+                .Alias(new string[] { "parent", "father", "master", "credits" })
                 .Description("Information about Kelly Hoshira")
                 .Do(async e =>
                 {
@@ -197,9 +199,29 @@ namespace KellyHoshira
 
             m_commandService.CreateGroup("strawpoll", cgb =>
             {
+               async Task PrintStrawPoll(CommandEventArgs e, StrawpollPoll poll)
+                {
+                    if (poll != null)
+                    {
+                        var pollString = $"{poll.title} \n" +
+                            $"VOTE HERE - {poll.GetPollUrl()} \n";
+
+                        for (int i = 0; i < poll.options.Count; i++)
+                        {
+                            pollString += string.Format("\t{0,-15}{1}\n", poll.votes[i] + " votes", poll.options[i]);
+                        }
+
+                        await e.Channel.SendMessage(pollString);
+                    }
+                    else
+                    {
+                        await e.Channel.SendMessage("There was an error retrieving this particular poll. Please try again later.");
+                    }
+                }
+
                 cgb.CreateCommand("view")
                     .Alias(new string[] { "show", "display" })
-                    .Description("Views the current results of a Strawpoll")
+                    .Description("Views the current results of a Strawpoll ... ex: `strawpoll view 1`")
                     .Parameter("PollID", ParameterType.Required)
                     .Do(async e =>
                     {
@@ -207,24 +229,36 @@ namespace KellyHoshira
                         {
                             StrawpollService service = StrawpollService.Instance;
                             StrawpollPoll poll = await service.GetPoll(id);
-
-                            if (poll != null)
-                            {
-                                var pollString = $"{poll.title} \n" +
-                                    $"VOTE HERE - {poll.GetPollUrl()} \n";
-
-                                for (int i = 0; i < poll.options.Count; i++)
-                                {
-                                    pollString += string.Format("\t{0,-15}{1}\n", poll.votes[i] + " votes", poll.options[i]);
-                                }
-
-                                await e.Channel.SendMessage(pollString);
-                            }
-                            else
-                            {
-                                await e.Channel.SendMessage("There was an error retrieving this particular poll. Please try again later.");
-                            }
+                            await PrintStrawPoll(e, poll);
                         }
+                    });
+
+                cgb.CreateCommand("create")
+                    .Alias(new string[] { "new" })
+                    .Description("Creates a new Strawpoll ... ex: `strawpoll create Dogs or Cats? {Dogs;Cats}`")
+                    .Parameter("PollString", ParameterType.Unparsed)
+                    .Do(async e =>
+                    {
+                        string pollString = e.GetArg("PollString");
+                        var title = pollString.Substring(0, pollString.IndexOf('{'));
+                        var questionString = Regex.Match(pollString, @"\{([^)]*)\}").Groups[1].Value;
+
+                        Debug.WriteLine(pollString);
+                        Debug.WriteLine(title);
+                        Debug.WriteLine(questionString);
+
+                        StrawpollService service = StrawpollService.Instance;
+                        var pollSettings = new StrawpollSettings();
+                        pollSettings.Title = title;
+                        pollSettings.Options.AddRange(questionString.Split(';'));
+
+                        foreach (var s in pollSettings.Options)
+                        {
+                            Debug.WriteLine(s);
+                        }
+
+                        StrawpollPoll poll = await service.PostPoll(pollSettings);
+                        await PrintStrawPoll(e, poll);
                     });
             });
         }
