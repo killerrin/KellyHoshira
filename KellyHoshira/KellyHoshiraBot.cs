@@ -1,6 +1,7 @@
 ﻿using Discord;
 using Discord.Commands;
 using FunSharp.Core.Games.Randomized;
+using FunSharp.Core.Games.Strawpoll;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,7 @@ namespace KellyHoshira
         public const string APP_BOT_USER_TOKEN = "Mjk0ODg5MDU1NjYzOTQ3Nzc2.C7dx-Q.BbipBYQMm5ixqoc95v0OoulFxkg";
         public const string APP_VERSION = "1.0";
         public const string APP_WEBSITE = "https://killerrin.github.io/KellyHoshira/";
-
+        public const string APP_SOURCE_CODE = "https://github.com/killerrin/KellyHoshira";
 
         private DiscordClient m_client;
         private CommandService m_commandService;
@@ -48,7 +49,6 @@ namespace KellyHoshira
 
         private void SetupGeneralCommands()
         {
-            // Standard Commands
             m_commandService.CreateCommand("greet")
                 .Alias(new string[] { "gr", "hi", "hello" })
                 .Description("Greets a person.")
@@ -81,10 +81,10 @@ namespace KellyHoshira
                 .Description("Information about Kelly Hoshira")
                 .Do(async e =>
                 {
-                    await e.Channel.SendMessage($"{APP_NAME} - Version {APP_VERSION}");
-                    await e.Channel.SendMessage($"Created By: @killerrin");
-                    await e.Channel.SendMessage($"My website is here: {APP_WEBSITE}");
-                    await e.Channel.SendMessage($"View my source code here: https://github.com/killerrin/KellyHoshira");
+                    await e.Channel.SendMessage($"{APP_NAME} - Version {APP_VERSION} \n" +
+                        $"Created By: @killerrin \n" +
+                        $"My website is here: {APP_WEBSITE} \n" +
+                        $"View my source code here: {APP_SOURCE_CODE}");
                 });
 
         }
@@ -194,6 +194,39 @@ namespace KellyHoshira
                     await e.Channel.SendMessage($"{e.User.Mention} rolled {dieString} {text}");
                     await e.Channel.SendMessage($"Result: {rolls} | Total: {total} {text}");
                 });
+
+            m_commandService.CreateGroup("strawpoll", cgb =>
+            {
+                cgb.CreateCommand("view")
+                    .Alias(new string[] { "show", "display" })
+                    .Description("Views the current results of a Strawpoll")
+                    .Parameter("PollID", ParameterType.Required)
+                    .Do(async e =>
+                    {
+                        if (int.TryParse(e.GetArg("PollID"), out int id))
+                        {
+                            StrawpollService service = StrawpollService.Instance;
+                            StrawpollPoll poll = await service.GetPoll(id);
+
+                            if (poll != null)
+                            {
+                                var pollString = $"{poll.title} \n" +
+                                    $"VOTE HERE - {poll.GetPollUrl()} \n";
+
+                                for (int i = 0; i < poll.options.Count; i++)
+                                {
+                                    pollString += string.Format("\t{0,-15}{1}\n", poll.votes[i] + " votes", poll.options[i]);
+                                }
+
+                                await e.Channel.SendMessage(pollString);
+                            }
+                            else
+                            {
+                                await e.Channel.SendMessage("There was an error retrieving this particular poll. Please try again later.");
+                            }
+                        }
+                    });
+            });
         }
 
         public void Run()
