@@ -15,6 +15,9 @@ namespace KellyHoshira
         public const string CLIENT_ID = "294889055663947776";
         public const string APP_BOT_USER_NAME = "KellyHoshira#1789";
         public const string APP_BOT_USER_TOKEN = "Mjk0ODg5MDU1NjYzOTQ3Nzc2.C7dx-Q.BbipBYQMm5ixqoc95v0OoulFxkg";
+        public const string APP_VERSION = "1.0";
+        public const string APP_WEBSITE = "https://killerrin.github.io/KellyHoshira/";
+
 
         private DiscordClient m_client;
         private CommandService m_commandService;
@@ -22,9 +25,9 @@ namespace KellyHoshira
         public KellyHoshiraBot()
         {
             DiscordConfigBuilder config = new DiscordConfigBuilder();
-            config.AppName = "Kelly Hoshira";
-            config.AppUrl = "https://github.com/killerrin/KellyHoshira";
-            config.AppVersion = "1.0";
+            config.AppName = APP_NAME;
+            config.AppUrl = APP_WEBSITE;
+            config.AppVersion = APP_VERSION;
             config.LogLevel = LogSeverity.Info;
             config.LogHandler = Log;
 
@@ -78,8 +81,9 @@ namespace KellyHoshira
                 .Description("Information about Kelly Hoshira")
                 .Do(async e =>
                 {
+                    await e.Channel.SendMessage($"{APP_NAME} - Version {APP_VERSION}");
                     await e.Channel.SendMessage($"Created By: @killerrin");
-                    await e.Channel.SendMessage($"My website is here: https://killerrin.github.io/KellyHoshira/");
+                    await e.Channel.SendMessage($"My website is here: {APP_WEBSITE}");
                     await e.Channel.SendMessage($"View my source code here: https://github.com/killerrin/KellyHoshira");
                 });
 
