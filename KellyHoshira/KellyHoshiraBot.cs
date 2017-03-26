@@ -14,6 +14,7 @@ namespace KellyHoshira
 {
     public class KellyHoshiraBot
     {
+        #region Consts
         public const string APP_NAME = "Kelly Hoshira";
         public const string CLIENT_ID = "294889055663947776";
         public const string APP_BOT_USER_NAME = "KellyHoshira#1789";
@@ -21,12 +22,18 @@ namespace KellyHoshira
         public const string APP_VERSION = "1.0";
         public const string APP_WEBSITE = "https://killerrin.github.io/KellyHoshira/";
         public const string APP_SOURCE_CODE = "https://github.com/killerrin/KellyHoshira";
+        #endregion
 
+        public OnlineStatus Status { get; protected set; }
         private DiscordClient m_client;
         private CommandService m_commandService;
 
         public KellyHoshiraBot()
         {
+            // Set Local Variables
+            Status = OnlineStatus.Offline;
+
+            // Create the Bot
             DiscordConfigBuilder config = new DiscordConfigBuilder();
             config.AppName = APP_NAME;
             config.AppUrl = APP_WEBSITE;
@@ -49,37 +56,54 @@ namespace KellyHoshira
             m_client.MessageReceived += MessageReceived;
         }
 
+        #region Commands
         private void SetupGeneralCommands()
         {
             m_commandService.CreateCommand("greet")
                 .Alias(new string[] { "gr", "hi", "hello" })
-                .Description("Greets a person.")
-                .Parameter("GreetedPerson", ParameterType.Required)
+                .Description("Greets a person. ... ex: `greet @username`")
+                .Parameter("GreetedPerson", ParameterType.Optional)
                 .Do(async e =>
                 {
-                    await e.Channel.SendMessage($"Hello, {e.GetArg("GreetedPerson")}");
+                    var greetedPerson = e.GetArg("GreetedPerson");
+                    if (string.IsNullOrWhiteSpace(greetedPerson))
+                    {
+                        await e.Channel.SendMessage($"Hello!");
+                    }
+                    else
+                    {
+                        await e.Channel.SendMessage($"Hello, {e.GetArg("GreetedPerson")}");
+                    }
                 });
 
             m_commandService.CreateCommand("bye")
                 .Alias(new string[] { "cya", "g2g", "gb", "bb" })
-                .Description("Says 'Bye' to a person")
-                .Parameter("LeavingPerson", ParameterType.Required)
+                .Description("Says 'Bye' to a person ... ex: `bye @username`")
+                .Parameter("LeavingPerson", ParameterType.Optional)
                 .Do(async e =>
                 {
-                    await e.Channel.SendMessage($"See you later, {e.GetArg("LeavingPerson")}");
+                    var leavingPerson = e.GetArg("LeavingPerson");
+                    if (string.IsNullOrWhiteSpace(leavingPerson))
+                    {
+                        await e.Channel.SendMessage($"See you later");
+                    }
+                    else
+                    {
+                        await e.Channel.SendMessage($"See you later, {e.GetArg("LeavingPerson")}");
+                    }
                 });
 
             m_commandService.CreateCommand("say")
                 .Alias(new string[] { "echo" })
-                .Description("Echo's back what is said")
+                .Description("Echo's back what is said ... ex: `say INSERT TEXT HERE`")
                 .Parameter("WhatToSay", ParameterType.Unparsed)
                 .Do(async e =>
                 {
                     await e.Channel.SendMessage(e.GetArg("WhatToSay"));
                 });
 
-            m_commandService.CreateCommand("owner")
-                .Alias(new string[] { "parent", "father", "master", "credits" })
+            m_commandService.CreateCommand("developer")
+                .Alias(new string[] { "owner", "parent", "father", "master", "credits" })
                 .Description("Information about Kelly Hoshira")
                 .Do(async e =>
                 {
@@ -262,22 +286,56 @@ namespace KellyHoshira
                     });
             });
         }
+        #endregion
 
-        public void Run()
+        #region Connect/Disconnect
+        public void Connect()
         {
             m_client.ExecuteAndWait(async () =>
             {
                 await m_client.Connect(APP_BOT_USER_TOKEN, TokenType.Bot);
+                Status = OnlineStatus.Online;
+            });
+        }
+        public void Disconnect()
+        {
+            m_client.ExecuteAndWait(async () =>
+            {
+                await m_client.Disconnect();
+                Status = OnlineStatus.Offline;
             });
         }
 
+        public async Task ConnectAsync()
+        {
+            await m_client.Connect(APP_BOT_USER_TOKEN, TokenType.Bot);
+            Status = OnlineStatus.Online;
+        }
+        public async Task DisconectAsync()
+        {
+            await m_client.Disconnect();
+            Status = OnlineStatus.Offline;
+        }
+        #endregion
+
+        #region Events
         private void MessageReceived(object sender, MessageEventArgs e)
         {
-            Console.WriteLine(e.Message);
+            if (e.Message.IsMentioningMe(true))
+            {
+                Console.WriteLine(e.Message);
+            }
         }
         private void Log(object sender, LogMessageEventArgs e)
         {
             Console.WriteLine(e.Message);
         }
+        #endregion
+    }
+
+    public enum OnlineStatus
+    {
+        Online,
+        Offline
     }
 }

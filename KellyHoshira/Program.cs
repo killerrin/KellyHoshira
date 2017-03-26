@@ -12,7 +12,7 @@ namespace KellyHoshira
         {
             Console.WriteLine("Kelly Hoshira");
             KellyHoshiraBot bot = new KellyHoshiraBot();
-            bot.Run();
+            bot.Connect();
         }
     }
 }
