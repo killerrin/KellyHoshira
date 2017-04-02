@@ -1,0 +1,51 @@
+﻿<Window x:Class="KellyHoshira.WPFApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KellyHoshira.WPFApp"
+        mc:Ignorable="d"
+        Title="Kelly Hoshira Controll Panel" Height="350" Width="525"
+        Loaded="Window_Loaded"
+        Closing="Window_Closing"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Vertical" Grid.Row="0">
+            <TextBlock FontSize="24px">Kelly Hoshira - Discord Bot</TextBlock>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
+                    <TextBlock Text="Network Status: " />
+                    <TextBlock Name="currentNetworkStatus" Text="Offline" />
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="25,0,0,0">
+                    <Button Name="connectButton" Content="Connect" Click="connectButton_Click" />
+                    <Button Name="disconnectButton" Content="Disconnect" Click="disconnectButton_Click" Margin="5,0,0,0" />
+                </StackPanel>
+            </StackPanel>
+
+            <Separator Margin="0,5px,0,5px" />
+        </StackPanel>
+
+        <Grid Grid.Row="1" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Orientation="Vertical" Grid.Column="0">
+                <TextBlock FontSize="20px" HorizontalAlignment="Center">Messages</TextBlock>
+                <ListBox Name="messagesLog" ItemsSource="{Binding Messages}"/>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Grid.Column="1">
+                <TextBlock FontSize="20px" HorizontalAlignment="Center">Logs</TextBlock>
+                <ListBox Name="logsLog" ItemsSource="{Binding Logs}"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>

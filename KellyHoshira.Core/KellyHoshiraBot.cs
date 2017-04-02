@@ -24,7 +24,7 @@ namespace KellyHoshira.Core
         public const string APP_SOURCE_CODE = "https://github.com/killerrin/KellyHoshira";
         #endregion
 
-        public OnlineStatus Status { get; protected set; }
+        public OnlineStatus NetworkStatus { get; protected set; }
 
         protected DiscordClient m_client;
         public DiscordClient Client { get { return m_client; } protected set { m_client = value; } }
@@ -49,7 +49,7 @@ namespace KellyHoshira.Core
                 config.LogHandler = Log;
 
             // Set Local Variables
-            Status = OnlineStatus.Offline;
+            NetworkStatus = OnlineStatus.Offline;
 
             // Create the Client
             m_client = new DiscordClient(config);
@@ -304,7 +304,7 @@ namespace KellyHoshira.Core
             m_client.ExecuteAndWait(async () =>
             {
                 await m_client.Connect(APP_BOT_USER_TOKEN, TokenType.Bot);
-                Status = OnlineStatus.Online;
+                NetworkStatus = OnlineStatus.Online;
             });
         }
         public void Disconnect()
@@ -312,19 +312,19 @@ namespace KellyHoshira.Core
             m_client.ExecuteAndWait(async () =>
             {
                 await m_client.Disconnect();
-                Status = OnlineStatus.Offline;
+                NetworkStatus = OnlineStatus.Offline;
             });
         }
 
         public async Task ConnectAsync()
         {
             await m_client.Connect(APP_BOT_USER_TOKEN, TokenType.Bot);
-            Status = OnlineStatus.Online;
+            NetworkStatus = OnlineStatus.Online;
         }
         public async Task DisconectAsync()
         {
             await m_client.Disconnect();
-            Status = OnlineStatus.Offline;
+            NetworkStatus = OnlineStatus.Offline;
         }
         #endregion
 
