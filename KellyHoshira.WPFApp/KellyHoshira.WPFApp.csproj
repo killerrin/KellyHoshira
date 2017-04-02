@@ -37,6 +37,9 @@
     <Reference Include="Discord.Net, Version=0.9.6.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Discord.Net.0.9.6\lib\net45\Discord.Net.dll</HintPath>
     </Reference>
+    <Reference Include="Hardcodet.Wpf.TaskbarNotification, Version=1.0.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hardcodet.NotifyIcon.Wpf.1.0.8\lib\net451\Hardcodet.Wpf.TaskbarNotification.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -120,6 +123,16 @@
       <Project>{f223c29f-ba33-4348-95b7-1fa2eaa0a64e}</Project>
       <Name>KellyHoshira.Core</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Offline.ico" />
+    <Resource Include="Icons\Online.ico" />
+    <Resource Include="Icons\Unavailable.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\Offline.png" />
+    <Resource Include="Icons\Online.png" />
+    <Resource Include="Icons\Unavailable.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

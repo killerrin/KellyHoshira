@@ -2,6 +2,7 @@
 using Discord.Commands;
 using FunSharp.Core.Games.Randomized;
 using FunSharp.Core.Games.Strawpoll;
+using KellyHoshira.Core.Events;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -299,12 +300,16 @@ namespace KellyHoshira.Core
         #endregion
 
         #region Connect/Disconnect
+        public event NetworkChangedEventHandler NetworkChanged;
+
         public void Connect()
         {
             m_client.ExecuteAndWait(async () =>
             {
                 await m_client.Connect(APP_BOT_USER_TOKEN, TokenType.Bot);
+
                 NetworkStatus = OnlineStatus.Online;
+                NetworkChanged?.Invoke(this, new NetworkChangedEventArgs(NetworkStatus));
             });
         }
         public void Disconnect()
@@ -312,19 +317,25 @@ namespace KellyHoshira.Core
             m_client.ExecuteAndWait(async () =>
             {
                 await m_client.Disconnect();
+
                 NetworkStatus = OnlineStatus.Offline;
+                NetworkChanged?.Invoke(this, new NetworkChangedEventArgs(NetworkStatus));
             });
         }
 
         public async Task ConnectAsync()
         {
             await m_client.Connect(APP_BOT_USER_TOKEN, TokenType.Bot);
+
             NetworkStatus = OnlineStatus.Online;
+            NetworkChanged?.Invoke(this, new NetworkChangedEventArgs(NetworkStatus));
         }
         public async Task DisconectAsync()
         {
             await m_client.Disconnect();
+
             NetworkStatus = OnlineStatus.Offline;
+            NetworkChanged?.Invoke(this, new NetworkChangedEventArgs(NetworkStatus));
         }
         #endregion
 
@@ -341,10 +352,7 @@ namespace KellyHoshira.Core
         private void Log(object sender, LogMessageEventArgs e)
         {
             Debug.WriteLine(e.Message);
-
-            var logEvent = LogReceived;
-            if (logEvent != null)
-                logEvent(sender, e);
+            LogReceived?.Invoke(sender, e);
         }
         #endregion
     }

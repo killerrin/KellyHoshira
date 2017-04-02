@@ -3,24 +3,39 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:tb="http://www.hardcodet.net/taskbar"
         xmlns:local="clr-namespace:KellyHoshira.WPFApp"
         mc:Ignorable="d"
-        Title="Kelly Hoshira Controll Panel" Height="350" Width="525"
+        Title="Kelly Hoshira Controll Panel" Height="600" Width="800"
         Loaded="Window_Loaded"
         Closing="Window_Closing"
+        StateChanged="Window_StateChanged"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Vertical" Grid.Row="0">
-            <TextBlock FontSize="24px">Kelly Hoshira - Discord Bot</TextBlock>
+        <Menu Grid.Row="0">
+            <MenuItem Header="File">
+                <MenuItem Name="minimizeToTrayButton" Header="Minimize To Tray" Click="minimizeToTrayButton_Click"/>
+                <MenuItem Name="exitButton" Header="Exit" Click="exitButton_Click"/>
+            </MenuItem>
+            <MenuItem Header="Network">
+                <MenuItem Header="Connect" Click="connectButton_Click"/>
+                <MenuItem Header="Disconnect" Click="disconnectButton_Click"/>
+            </MenuItem>
+        </Menu>
+
+        <StackPanel Orientation="Vertical" Grid.Row="1">
+            <TextBlock FontSize="24">Kelly Hoshira - Discord Bot</TextBlock>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,0">
-                    <TextBlock Text="Network Status: " />
-                    <TextBlock Name="currentNetworkStatus" Text="Offline" />
+                <TextBlock Text="Network Status: " />
+                <StackPanel Orientation="Horizontal" Margin="5,-3,0,0">
+                    <Ellipse Name="currentNetworkStatusIndicator" Fill="Red" Width="10" Height="10" ></Ellipse>
+                    <TextBlock Name="currentNetworkStatus" Text="Offline" Margin="5,3,0,0" />
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="25,0,0,0">
@@ -29,21 +44,21 @@
                 </StackPanel>
             </StackPanel>
 
-            <Separator Margin="0,5px,0,5px" />
+            <Separator Margin="0,5,0,5" />
         </StackPanel>
 
-        <Grid Grid.Row="1" >
+        <Grid Grid.Row="2" >
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="0.75*"/>
             </Grid.ColumnDefinitions>
 
             <StackPanel Orientation="Vertical" Grid.Column="0">
-                <TextBlock FontSize="20px" HorizontalAlignment="Center">Messages</TextBlock>
+                <TextBlock FontSize="20" HorizontalAlignment="Center">Messages</TextBlock>
                 <ListBox Name="messagesLog" ItemsSource="{Binding Messages}"/>
             </StackPanel>
             <StackPanel Orientation="Vertical" Grid.Column="1">
-                <TextBlock FontSize="20px" HorizontalAlignment="Center">Logs</TextBlock>
+                <TextBlock FontSize="20" HorizontalAlignment="Center">Logs</TextBlock>
                 <ListBox Name="logsLog" ItemsSource="{Binding Logs}"/>
             </StackPanel>
         </Grid>

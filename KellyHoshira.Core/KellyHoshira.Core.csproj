@@ -82,6 +82,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Events\NetworkChangedEventArgs.cs" />
     <Compile Include="KellyHoshiraBot.cs" />
     <Compile Include="OnlineStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
