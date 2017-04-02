@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{88B8F32F-C9E0-4093-9771-5B790DA5646B}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>KellyHoshira</RootNamespace>
-    <AssemblyName>KellyHoshira</AssemblyName>
+    <RootNamespace>KellyHoshira.ConsoleApp</RootNamespace>
+    <AssemblyName>KellyHoshira.ConsoleApp</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -85,7 +85,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="KellyHoshiraBot.cs" />
+    <Compile Include="Core\KellyHoshiraBot.cs" />
+    <Compile Include="Core\OnlineStatus.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

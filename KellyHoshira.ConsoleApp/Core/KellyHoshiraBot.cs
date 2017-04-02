@@ -10,7 +10,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace KellyHoshira
+namespace KellyHoshira.Core
 {
     public class KellyHoshiraBot
     {
@@ -25,22 +25,33 @@ namespace KellyHoshira
         #endregion
 
         public OnlineStatus Status { get; protected set; }
-        private DiscordClient m_client;
-        private CommandService m_commandService;
 
-        public KellyHoshiraBot()
+        protected DiscordClient m_client;
+        public DiscordClient Client { get { return m_client; } protected set { m_client = value; } }
+
+        protected CommandService m_commandService;
+
+
+        public KellyHoshiraBot() 
+            : this(new DiscordConfigBuilder()
+            {
+                AppName = APP_NAME,
+                AppUrl = APP_WEBSITE,
+                AppVersion = APP_VERSION,
+                LogLevel = LogSeverity.Info
+            })
         {
+
+        }
+        public KellyHoshiraBot(DiscordConfigBuilder config)
+        {
+            if (config.LogHandler == null)
+                config.LogHandler = Log;
+
             // Set Local Variables
             Status = OnlineStatus.Offline;
 
-            // Create the Bot
-            DiscordConfigBuilder config = new DiscordConfigBuilder();
-            config.AppName = APP_NAME;
-            config.AppUrl = APP_WEBSITE;
-            config.AppVersion = APP_VERSION;
-            config.LogLevel = LogSeverity.Info;
-            config.LogHandler = Log;
-
+            // Create the Client
             m_client = new DiscordClient(config);
 
             // Setup the Usings
@@ -55,6 +66,7 @@ namespace KellyHoshira
             // Setup Events
             m_client.MessageReceived += MessageReceived;
         }
+
 
         #region Commands
         private void SetupGeneralCommands()
@@ -153,8 +165,7 @@ namespace KellyHoshira
                         text += $" with a flag of `{flag}`";
                     }
 
-                    await e.Channel.SendMessage(text);
-                    await e.Channel.SendMessage(result);
+                    await e.Channel.SendMessage($"{text}\n{result}");
                 });
 
             m_commandService.CreateCommand("coinToss")
@@ -163,16 +174,15 @@ namespace KellyHoshira
                 .Parameter("Flag", ParameterType.Optional)
                 .Do(async e =>
                 {
+                    string text = $"{e.User.Mention} threw a coin...";
                     var flag = e.GetArg("Flag").ToLower();
-
-                    await e.Channel.SendMessage($"{e.User.Mention} threw a coin...");
 
                     CoinResult coinFlip;
                     if (flag.Equals("-s")) {
                         coinFlip = Coin.Instance.FlipCoinWithSide();
                         if (coinFlip == CoinResult.Side)
                         {
-                            await e.Channel.SendMessage($"The coin landed on its {coinFlip}... wait, that shouldn't have happened");
+                            await e.Channel.SendMessage($"{text}\nThe coin landed on its {coinFlip}... wait, that shouldn't have happened");
                             return;
                         }
                     }
@@ -181,7 +191,7 @@ namespace KellyHoshira
                         coinFlip = Coin.Instance.FlipCoin();
                     }
 
-                    await e.Channel.SendMessage($"The coin landed on {coinFlip}");
+                    await e.Channel.SendMessage($"{text}\nThe coin landed on {coinFlip}");
                 });
 
             m_commandService.CreateCommand("roll")
@@ -217,8 +227,8 @@ namespace KellyHoshira
                         total += roll;
                     }
 
-                    await e.Channel.SendMessage($"{e.User.Mention} rolled {dieString} {text}");
-                    await e.Channel.SendMessage($"Result: {rolls} | Total: {total} {text}");
+                    await e.Channel.SendMessage($"{e.User.Mention} rolled {dieString} {text} \n" +
+                                                $"Result: {rolls} | Total: {total} {text}");
                 });
 
             m_commandService.CreateGroup("strawpoll", cgb =>
@@ -323,19 +333,19 @@ namespace KellyHoshira
         {
             if (e.Message.IsMentioningMe(true))
             {
-                Console.WriteLine(e.Message);
+                Debug.WriteLine(e.Message);
             }
         }
+
+        public event EventHandler<LogMessageEventArgs> LogReceived;
         private void Log(object sender, LogMessageEventArgs e)
         {
-            Console.WriteLine(e.Message);
+            Debug.WriteLine(e.Message);
+
+            var logEvent = LogReceived;
+            if (logEvent != null)
+                logEvent(sender, e);
         }
         #endregion
-    }
-
-    public enum OnlineStatus
-    {
-        Online,
-        Offline
     }
 }
