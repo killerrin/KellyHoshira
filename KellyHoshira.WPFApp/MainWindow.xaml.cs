@@ -30,17 +30,10 @@ namespace KellyHoshira.WPFApp
         public ObservableCollection<string> Messages { get; set; } = new ObservableCollection<string>();
         public ObservableCollection<string> Logs { get; set; } = new ObservableCollection<string>();
 
-        public TaskbarIcon TaskBarIcon;
+        public TaskbarIcon TaskBarIcon { get { return taskBarIcon; } }
 
         public MainWindow()
         {
-            // Create the TaskBarIcon
-            TaskBarIcon = new TaskbarIcon();
-            TaskBarIcon.IconSource = new BitmapImage(new Uri("pack://application:,,,/Icons/Offline.ico"));
-            TaskBarIcon.ToolTipText = "Kelly Hoshira - Discord Bot";
-            TaskBarIcon.TrayMouseDoubleClick += TaskBarIcon_TrayMouseDoubleClick;
-            TaskBarIcon.Visibility = Visibility.Collapsed;
-
             // Create the Bot
             Bot = new KellyHoshiraBot();
             Bot.Client.MessageReceived += Client_MessageReceived;
@@ -49,6 +42,15 @@ namespace KellyHoshira.WPFApp
 
             // Initialize the Program
             InitializeComponent();
+        }
+
+        public void ReviveFromTray()
+        {
+            showButton_Click(this, new RoutedEventArgs());
+        }
+        public void MinimizeToTray()
+        {
+            minimizeToTrayButton_Click(this, new RoutedEventArgs());
         }
 
         #region Events
@@ -86,10 +88,11 @@ namespace KellyHoshira.WPFApp
             await Bot.DisconectAsync();
         }
 
-        private void TaskBarIcon_TrayMouseDoubleClick(object sender, RoutedEventArgs e)
+        private void showButton_Click(object sender, RoutedEventArgs e)
         {
             TaskBarIcon.Visibility = Visibility.Collapsed;
             Show();
+            WindowState = WindowState.Normal;
         }
 
         private void minimizeToTrayButton_Click(object sender, RoutedEventArgs e)

@@ -62,5 +62,21 @@
                 <ListBox Name="logsLog" ItemsSource="{Binding Logs}"/>
             </StackPanel>
         </Grid>
+
+        <tb:TaskbarIcon
+            Name="taskBarIcon"
+            IconSource="pack://application:,,,/Icons/Offline.ico"
+            ToolTipText="Kelly Hoshira - Discord Bot"
+            TrayMouseDoubleClick="showButton_Click"
+            Visibility="Collapsed">
+            <tb:TaskbarIcon.ContextMenu>
+                <ContextMenu Background="CornflowerBlue">
+                    <MenuItem Header="Show" Click="showButton_Click" />
+                    <MenuItem Header="Connect" Click="connectButton_Click" />
+                    <MenuItem Header="Disconnect" Click="disconnectButton_Click" />
+                    <MenuItem Header="Exit" Click="exitButton_Click" />
+                </ContextMenu>
+            </tb:TaskbarIcon.ContextMenu>
+        </tb:TaskbarIcon>
     </Grid>
 </Window>
