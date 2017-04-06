@@ -108,11 +108,20 @@ namespace KellyHoshira.Core
 
             m_commandService.CreateCommand("say")
                 .Alias(new string[] { "echo" })
-                .Description("Echo's back what is said ... ex: `say INSERT TEXT HERE`")
+                .Description("Echo's back what is supplied ... ex: `say INSERT TEXT HERE`")
                 .Parameter("WhatToSay", ParameterType.Unparsed)
                 .Do(async e =>
                 {
                     await e.Channel.SendMessage(e.GetArg("WhatToSay"));
+                });
+
+            m_commandService.CreateCommand("speak")
+                .Alias(new string[] { "tts" })
+                .Description("Speaks through TTS what is supplied ... ex: `speak INSERT TEXT HERE`")
+                .Parameter("WhatToSay", ParameterType.Unparsed)
+                .Do(async e =>
+                {
+                    await e.Channel.SendTTSMessage(e.GetArg("WhatToSay"));
                 });
 
             m_commandService.CreateCommand("developer")
