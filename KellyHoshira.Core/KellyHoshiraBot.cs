@@ -34,7 +34,7 @@ namespace KellyHoshira.Core
         protected CommandService m_commandService;
 
 
-        public KellyHoshiraBot() 
+        public KellyHoshiraBot()
             : this(new DiscordConfigBuilder()
             {
                 AppName = APP_NAME,
@@ -57,7 +57,8 @@ namespace KellyHoshira.Core
             m_client = new DiscordClient(config);
 
             // Setup the Usings
-            m_client.UsingCommands(x => {
+            m_client.UsingCommands(x =>
+            {
                 x.AllowMentionPrefix = true;
                 x.HelpMode = HelpMode.Public;
             });
@@ -135,8 +136,8 @@ namespace KellyHoshira.Core
                         $"My website is here: {APP_WEBSITE} \n" +
                         $"View my source code here: {APP_SOURCE_CODE}");
                 });
-				
-			m_commandService.CreateCommand("uptime")
+
+            m_commandService.CreateCommand("uptime")
                 .Description("Gets the current uptime ... ex: `uptime`")
                 .Do(async e =>
                 {
@@ -197,7 +198,8 @@ namespace KellyHoshira.Core
                     var flag = e.GetArg("Flag").ToLower();
 
                     CoinResult coinFlip;
-                    if (flag.Equals("-s")) {
+                    if (flag.Equals("-s"))
+                    {
                         coinFlip = Coin.Instance.FlipCoinWithSide();
                         if (coinFlip == CoinResult.Side)
                         {
@@ -252,7 +254,7 @@ namespace KellyHoshira.Core
 
             m_commandService.CreateGroup("strawpoll", cgb =>
             {
-               async Task PrintStrawPoll(CommandEventArgs e, StrawpollPoll poll)
+                async Task PrintStrawPoll(CommandEventArgs e, StrawpollPoll poll)
                 {
                     if (poll != null)
                     {
@@ -278,11 +280,22 @@ namespace KellyHoshira.Core
                     .Parameter("PollID", ParameterType.Required)
                     .Do(async e =>
                     {
-                        if (int.TryParse(e.GetArg("PollID"), out int id))
+                        try
                         {
-                            StrawpollService service = StrawpollService.Instance;
-                            StrawpollPoll poll = await service.GetPoll(id);
-                            await PrintStrawPoll(e, poll);
+                            if (int.TryParse(e.GetArg("PollID"), out int id))
+                            {
+                                Debug.WriteLine($"Strawpoll View {id}");
+                                StrawpollService service = StrawpollService.Instance;
+                                StrawpollPoll poll = await service.GetPoll(id);
+                                Debug.WriteLine("Get Complete");
+
+                                await PrintStrawPoll(e, poll);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            if (Debugger.IsAttached)
+                                Debugger.Break();
                         }
                     });
 
@@ -292,26 +305,37 @@ namespace KellyHoshira.Core
                     .Parameter("PollString", ParameterType.Unparsed)
                     .Do(async e =>
                     {
-                        string pollString = e.GetArg("PollString");
-                        var title = pollString.Substring(0, pollString.IndexOf('{'));
-                        var questionString = Regex.Match(pollString, @"\{([^)]*)\}").Groups[1].Value;
-
-                        Debug.WriteLine(pollString);
-                        Debug.WriteLine(title);
-                        Debug.WriteLine(questionString);
-
-                        StrawpollService service = StrawpollService.Instance;
-                        var pollSettings = new StrawpollSettings();
-                        pollSettings.Title = title;
-                        pollSettings.Options.AddRange(questionString.Split(';'));
-
-                        foreach (var s in pollSettings.Options)
+                        try
                         {
-                            Debug.WriteLine(s);
-                        }
+                            string pollString = e.GetArg("PollString");
+                            var title = pollString.Substring(0, pollString.IndexOf('{'));
+                            var questionString = Regex.Match(pollString, @"\{([^)]*)\}").Groups[1].Value;
 
-                        StrawpollPoll poll = await service.PostPoll(pollSettings);
-                        await PrintStrawPoll(e, poll);
+                            Debug.WriteLine(pollString);
+                            Debug.WriteLine(title);
+                            Debug.WriteLine(questionString);
+
+                            StrawpollService service = StrawpollService.Instance;
+                            var pollSettings = new StrawpollSettings();
+                            pollSettings.Title = title;
+                            pollSettings.Options.AddRange(questionString.Split(';'));
+
+                            foreach (var s in pollSettings.Options)
+                            {
+                                Debug.WriteLine(s);
+                            }
+
+                            StrawpollPoll poll = await service.PostPoll(pollSettings);
+
+                            Debug.WriteLine("Post Complete");
+
+                            await PrintStrawPoll(e, poll);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (Debugger.IsAttached)
+                                Debugger.Break();
+                        }
                     });
             });
         }

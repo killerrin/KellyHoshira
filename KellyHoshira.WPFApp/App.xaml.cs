@@ -14,26 +14,32 @@ namespace KellyHoshira.WPFApp
     /// </summary>
     public partial class App : Application
     {
+        public static bool StartMinimized = false;
+        public static bool StartOnline = false;
+
         private void Application_Startup(object sender, StartupEventArgs e)
         {
             // Application is running
             // Process command line args
-            bool startMinimized = false;
             for (int i = 0; i != e.Args.Length; ++i)
             {
                 if (e.Args[i] == "/StartMinimized")
                 {
-                    startMinimized = true;
+                    StartMinimized = true;
+                }
+                if (e.Args[i] == "/StartOnline")
+                {
+                    StartOnline = true;
                 }
             }
 
             // Create main application window, starting minimized if specified
             MainWindow mainWindow = new MainWindow();
-            if (startMinimized)
+            if (StartMinimized)
                 mainWindow.WindowState = WindowState.Minimized;
             mainWindow.Show();
 
-            if (startMinimized)
+            if (StartMinimized)
                 mainWindow.MinimizeToTray();
         }
     }

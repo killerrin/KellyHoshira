@@ -6,7 +6,7 @@
         xmlns:tb="http://www.hardcodet.net/taskbar"
         xmlns:local="clr-namespace:KellyHoshira.WPFApp"
         mc:Ignorable="d"
-        Title="Kelly Hoshira Controll Panel" Height="600" Width="800"
+        Title="Kelly Hoshira Control Panel" Height="600" Width="800"
         Loaded="Window_Loaded"
         Closing="Window_Closing"
         StateChanged="Window_StateChanged"

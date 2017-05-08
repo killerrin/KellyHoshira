@@ -56,7 +56,8 @@ namespace KellyHoshira.WPFApp
         #region Events
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-
+            if (App.StartOnline)
+                connectButton_Click(this, null);
         }
         private void Window_StateChanged(object sender, EventArgs e)
         {
