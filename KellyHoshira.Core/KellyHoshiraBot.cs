@@ -26,6 +26,7 @@ namespace KellyHoshira.Core
         #endregion
 
         public OnlineStatus NetworkStatus { get; protected set; }
+        public DateTime ConnectedTime { get; protected set; }
 
         protected DiscordClient m_client;
         public DiscordClient Client { get { return m_client; } protected set { m_client = value; } }
@@ -126,13 +127,21 @@ namespace KellyHoshira.Core
 
             m_commandService.CreateCommand("developer")
                 .Alias(new string[] { "owner", "parent", "father", "master", "credits" })
-                .Description("Information about Kelly Hoshira")
+                .Description("Information about Kelly Hoshira ... ex: `developer`")
                 .Do(async e =>
                 {
                     await e.Channel.SendMessage($"{APP_NAME} - Version {APP_VERSION} \n" +
                         $"Created By: @killerrin \n" +
                         $"My website is here: {APP_WEBSITE} \n" +
                         $"View my source code here: {APP_SOURCE_CODE}");
+                });
+				
+			m_commandService.CreateCommand("uptime")
+                .Description("Gets the current uptime ... ex: `uptime`")
+                .Do(async e =>
+                {
+                    TimeSpan difference = DateTime.UtcNow.Subtract(ConnectedTime);
+                    await e.Channel.SendMessage($"The current Uptime is: {difference}");
                 });
 
         }
@@ -318,6 +327,7 @@ namespace KellyHoshira.Core
                 await m_client.Connect(APP_BOT_USER_TOKEN, TokenType.Bot);
 
                 NetworkStatus = OnlineStatus.Online;
+                ConnectedTime = DateTime.UtcNow;
                 NetworkChanged?.Invoke(this, new NetworkChangedEventArgs(NetworkStatus));
             });
         }
@@ -337,6 +347,7 @@ namespace KellyHoshira.Core
             await m_client.Connect(APP_BOT_USER_TOKEN, TokenType.Bot);
 
             NetworkStatus = OnlineStatus.Online;
+            ConnectedTime = DateTime.UtcNow;
             NetworkChanged?.Invoke(this, new NetworkChangedEventArgs(NetworkStatus));
         }
         public async Task DisconectAsync()
