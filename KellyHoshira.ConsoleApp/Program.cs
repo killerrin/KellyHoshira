@@ -12,7 +12,11 @@ namespace KellyHoshira.ConsoleApp
     {
         static void Main(string[] args)
         {
-            KellyHoshiraBot bot = new KellyHoshiraBot();
+            // Load the Secret Keys
+            SecretKeys keys = SecretKeys.Load("Secret.txt");
+
+            // Create the Bot
+            KellyHoshiraBot bot = new KellyHoshiraBot(keys);
             bot.Client.MessageReceived += Client_MessageReceived;
             bot.LogReceived += Bot_LogReceived;
             bot.Connect();

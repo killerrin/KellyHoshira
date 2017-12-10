@@ -17,13 +17,13 @@ namespace KellyHoshira.Core
     {
         #region Consts
         public const string APP_NAME = "Kelly Hoshira";
-        public const string CLIENT_ID = "294889055663947776";
         public const string APP_BOT_USER_NAME = "KellyHoshira#1789";
-        public const string APP_BOT_USER_TOKEN = "Mjk0ODg5MDU1NjYzOTQ3Nzc2.C7dx-Q.BbipBYQMm5ixqoc95v0OoulFxkg";
         public const string APP_VERSION = "1.0";
         public const string APP_WEBSITE = "https://killerrin.github.io/KellyHoshira/";
         public const string APP_SOURCE_CODE = "https://github.com/killerrin/KellyHoshira";
         #endregion
+
+        SecretKeys Keys { get; set; }
 
         public OnlineStatus NetworkStatus { get; protected set; }
         public DateTime ConnectedTime { get; protected set; }
@@ -34,8 +34,8 @@ namespace KellyHoshira.Core
         protected CommandService m_commandService;
 
 
-        public KellyHoshiraBot()
-            : this(new DiscordConfigBuilder()
+        public KellyHoshiraBot(SecretKeys keys)
+            : this(keys, new DiscordConfigBuilder()
             {
                 AppName = APP_NAME,
                 AppUrl = APP_WEBSITE,
@@ -43,12 +43,13 @@ namespace KellyHoshira.Core
                 LogLevel = LogSeverity.Info
             })
         {
-
         }
-        public KellyHoshiraBot(DiscordConfigBuilder config)
+        public KellyHoshiraBot(SecretKeys keys, DiscordConfigBuilder config)
         {
             if (config.LogHandler == null)
                 config.LogHandler = Log;
+
+            Keys = keys;
 
             // Set Local Variables
             NetworkStatus = OnlineStatus.Offline;
@@ -348,7 +349,7 @@ namespace KellyHoshira.Core
         {
             m_client.ExecuteAndWait(async () =>
             {
-                await m_client.Connect(APP_BOT_USER_TOKEN, TokenType.Bot);
+                await m_client.Connect(Keys.UserToken, TokenType.Bot);
 
                 NetworkStatus = OnlineStatus.Online;
                 ConnectedTime = DateTime.UtcNow;
@@ -368,7 +369,7 @@ namespace KellyHoshira.Core
 
         public async Task ConnectAsync()
         {
-            await m_client.Connect(APP_BOT_USER_TOKEN, TokenType.Bot);
+            await m_client.Connect(Keys.UserToken, TokenType.Bot);
 
             NetworkStatus = OnlineStatus.Online;
             ConnectedTime = DateTime.UtcNow;

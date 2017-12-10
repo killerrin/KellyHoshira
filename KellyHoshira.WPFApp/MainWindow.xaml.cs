@@ -34,8 +34,11 @@ namespace KellyHoshira.WPFApp
 
         public MainWindow()
         {
+            // Load the Keys
+            SecretKeys keys = SecretKeys.Load("Secret.txt");
+
             // Create the Bot
-            Bot = new KellyHoshiraBot();
+            Bot = new KellyHoshiraBot(keys);
             Bot.Client.MessageReceived += Client_MessageReceived;
             Bot.LogReceived += Bot_LogReceived;
             Bot.NetworkChanged += Bot_NetworkChanged;
