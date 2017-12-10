@@ -86,10 +86,16 @@
     <Compile Include="KellyHoshiraBot.cs" />
     <Compile Include="OnlineStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SecretKeys.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Secret.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

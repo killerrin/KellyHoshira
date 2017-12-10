@@ -293,7 +293,7 @@ namespace KellyHoshira.Core
                                 await PrintStrawPoll(e, poll);
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             if (Debugger.IsAttached)
                                 Debugger.Break();
@@ -332,7 +332,7 @@ namespace KellyHoshira.Core
 
                             await PrintStrawPoll(e, poll);
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             if (Debugger.IsAttached)
                                 Debugger.Break();
