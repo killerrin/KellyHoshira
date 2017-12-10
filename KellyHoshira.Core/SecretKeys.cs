@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
+using System.Diagnostics;
 
 namespace KellyHoshira.Core
 {
@@ -31,7 +32,7 @@ namespace KellyHoshira.Core
                 while (!reader.EndOfStream)
                 {
                     var line = reader.ReadLine();
-
+                    //Debug.WriteLine(line);
                     // Parse out Empty Lines or Comments
                     if (string.IsNullOrWhiteSpace(line))
                         continue;
@@ -39,11 +40,15 @@ namespace KellyHoshira.Core
                         continue;
 
                     // Add to the list
-                    results.Add(reader.ReadLine());
+                    results.Add(line);
                 }
             }
 
             SecretKeys keys = new SecretKeys(results[0], results[1], results[2]);
+            Debug.WriteLine("Parsed Keys");
+            Debug.WriteLine(string.Format("Client ID: {0}", keys.ClientID));
+            Debug.WriteLine(string.Format("Client Secret: {0}", keys.ClientSecret));
+            Debug.WriteLine(string.Format("UserToken: {0}", keys.UserToken));
             return keys;
         }
     }
