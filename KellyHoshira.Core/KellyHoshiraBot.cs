@@ -1,8 +1,10 @@
 ﻿using Discord;
 using Discord.Commands;
+using Discord.WebSocket;
 using FunSharp.Core.Games.Randomized;
 using FunSharp.Core.Games.Strawpoll;
 using KellyHoshira.Core.Events;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,55 +24,51 @@ namespace KellyHoshira.Core
         public const string APP_WEBSITE = "https://killerrin.github.io/KellyHoshira/";
         public const string APP_SOURCE_CODE = "https://github.com/killerrin/KellyHoshira";
         #endregion
-
         SecretKeys Keys { get; set; }
 
         public OnlineStatus NetworkStatus { get; protected set; }
         public DateTime ConnectedTime { get; protected set; }
 
-        protected DiscordClient m_client;
-        public DiscordClient Client { get { return m_client; } protected set { m_client = value; } }
+        protected DiscordSocketClient m_client;
+        public DiscordSocketClient Client { get { return m_client; } protected set { m_client = value; } }
 
         protected CommandService m_commandService;
-
+        protected IServiceProvider _services;
 
         public KellyHoshiraBot(SecretKeys keys)
-            : this(keys, new DiscordConfigBuilder()
+            : this(keys, new DiscordSocketConfig()
             {
-                AppName = APP_NAME,
-                AppUrl = APP_WEBSITE,
-                AppVersion = APP_VERSION,
                 LogLevel = LogSeverity.Info
             })
         {
+            DiscordConfig config = new DiscordConfig();
         }
-        public KellyHoshiraBot(SecretKeys keys, DiscordConfigBuilder config)
+        public KellyHoshiraBot(SecretKeys keys, DiscordSocketConfig config)
         {
-            if (config.LogHandler == null)
-                config.LogHandler = Log;
-
             Keys = keys;
 
             // Set Local Variables
             NetworkStatus = OnlineStatus.Offline;
 
             // Create the Client
-            m_client = new DiscordClient(config);
+            m_client = new DiscordSocketClient(config);
+            m_client.Log += Log;
 
-            // Setup the Usings
-            m_client.UsingCommands(x =>
-            {
-                x.AllowMentionPrefix = true;
-                x.HelpMode = HelpMode.Public;
-            });
-            m_commandService = m_client.GetService<CommandService>();
-            SetupGeneralCommands();
-            SetupFunCommands();
+            // Setup the Commands
+            m_commandService = new CommandService();
+
+            _services = new ServiceCollection()
+                .AddSingleton(m_client)
+                .AddSingleton(m_commandService)
+                .BuildServiceProvider();
 
             // Setup Events
             m_client.MessageReceived += MessageReceived;
-        }
+            m_commandService.AddModulesAsync(System.Reflection.Assembly.GetEntryAssembly());
 
+
+            SetupGeneralCommands();
+        }
 
         #region Commands
         private void SetupGeneralCommands()
@@ -147,257 +145,46 @@ namespace KellyHoshira.Core
                 });
 
         }
-        private void SetupFunCommands()
-        {
-            m_commandService.CreateCommand("8ball")
-                .Description("Checks with the Magic 8 Ball... ex: `8ball {question}` OR `8ball {question} -{positive/neutral/negative}`")
-                .Parameter("Question", ParameterType.Unparsed)
-                .Do(async e =>
-                {
-                    var question = e.GetArg("Question");
-
-                    string text = $"{e.User.Mention} asked the 8ball `{question}`";
-                    string flag = "";
-                    string result = "";
-
-                    var questionLower = question.ToLower();
-                    if (questionLower.Contains("-positive"))
-                    {
-                        flag = "positive";
-                        result = $"{Magic8Ball.Instance.RandomPositive()}";
-                    }
-                    else if (questionLower.Contains("-neutral"))
-                    {
-                        flag = "neutral";
-                        result = $"{Magic8Ball.Instance.RandomNeutral()}";
-                    }
-                    else if (questionLower.Contains("-negative"))
-                    {
-                        flag = "negative";
-                        result = $"{Magic8Ball.Instance.RandomNegative()}";
-                    }
-                    else
-                    {
-                        result = $"{Magic8Ball.Instance.RandomAll()}";
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(flag))
-                    {
-                        text += $" with a flag of `{flag}`";
-                    }
-
-                    await e.Channel.SendMessage($"{text}\n{result}");
-                });
-
-            m_commandService.CreateCommand("coinToss")
-                .Alias(new string[] { "coin", "coinFlip", "flipCoin", "tossCoin" })
-                .Description("Tosses a coin ... ex: `coinToss` OR `coinToss -s`")
-                .Parameter("Flag", ParameterType.Optional)
-                .Do(async e =>
-                {
-                    string text = $"{e.User.Mention} threw a coin...";
-                    var flag = e.GetArg("Flag").ToLower();
-
-                    CoinResult coinFlip;
-                    if (flag.Equals("-s"))
-                    {
-                        coinFlip = Coin.Instance.FlipCoinWithSide();
-                        if (coinFlip == CoinResult.Side)
-                        {
-                            await e.Channel.SendMessage($"{text}\nThe coin landed on its {coinFlip}... wait, that shouldn't have happened");
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        coinFlip = Coin.Instance.FlipCoin();
-                    }
-
-                    await e.Channel.SendMessage($"{text}\nThe coin landed on {coinFlip}");
-                });
-
-            m_commandService.CreateCommand("roll")
-                .Description("Rolls Dice ... ex: `roll 3d20 Fire Damage` OR `roll 100`")
-                .Parameter("DieString", ParameterType.Required)
-                .Parameter("Text", ParameterType.Unparsed)
-                .Do(async e =>
-                {
-                    var dieString = e.GetArg("DieString");
-                    var text = e.GetArg("Text");
-
-                    if (!dieString.ToLower().Contains("d"))
-                    {
-                        if (int.TryParse(dieString, out int result))
-                        {
-                            dieString = $"1d{result}";
-                        }
-                        else
-                        {
-                            return;
-                        }
-                    }
-                    else if (string.IsNullOrWhiteSpace(dieString))
-                    {
-                        dieString = "1d100";
-                    }
-
-                    var dieRolls = Dice.Instance.RollMultiple(dieString);
-                    string rolls = string.Join(", ", dieRolls);
-                    int total = 0;
-                    foreach (var roll in dieRolls)
-                    {
-                        total += roll;
-                    }
-
-                    await e.Channel.SendMessage($"{e.User.Mention} rolled {dieString} {text} \n" +
-                                                $"Result: {rolls} | Total: {total} {text}");
-                });
-
-            m_commandService.CreateGroup("strawpoll", cgb =>
-            {
-                async Task PrintStrawPoll(CommandEventArgs e, StrawpollPoll poll)
-                {
-                    if (poll != null)
-                    {
-                        var pollString = $"{poll.title} \n" +
-                            $"VOTE HERE - {poll.GetPollUrl()} \n";
-
-                        for (int i = 0; i < poll.options.Count; i++)
-                        {
-                            pollString += string.Format("\t{0,-15}{1}\n", poll.votes[i] + " votes", poll.options[i]);
-                        }
-
-                        await e.Channel.SendMessage(pollString);
-                    }
-                    else
-                    {
-                        await e.Channel.SendMessage("There was an error retrieving this particular poll. Please try again later.");
-                    }
-                }
-
-                cgb.CreateCommand("view")
-                    .Alias(new string[] { "show", "display" })
-                    .Description("Views the current results of a Strawpoll ... ex: `strawpoll view 1`")
-                    .Parameter("PollID", ParameterType.Required)
-                    .Do(async e =>
-                    {
-                        try
-                        {
-                            if (int.TryParse(e.GetArg("PollID"), out int id))
-                            {
-                                Debug.WriteLine($"Strawpoll View {id}");
-                                StrawpollService service = StrawpollService.Instance;
-                                StrawpollPoll poll = await service.GetPoll(id);
-                                Debug.WriteLine("Get Complete");
-
-                                await PrintStrawPoll(e, poll);
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            if (Debugger.IsAttached)
-                                Debugger.Break();
-                        }
-                    });
-
-                cgb.CreateCommand("create")
-                    .Alias(new string[] { "new" })
-                    .Description("Creates a new Strawpoll ... ex: `strawpoll create Dogs or Cats? {Dogs;Cats}`")
-                    .Parameter("PollString", ParameterType.Unparsed)
-                    .Do(async e =>
-                    {
-                        try
-                        {
-                            string pollString = e.GetArg("PollString");
-                            var title = pollString.Substring(0, pollString.IndexOf('{'));
-                            var questionString = Regex.Match(pollString, @"\{([^)]*)\}").Groups[1].Value;
-
-                            Debug.WriteLine(pollString);
-                            Debug.WriteLine(title);
-                            Debug.WriteLine(questionString);
-
-                            StrawpollService service = StrawpollService.Instance;
-                            var pollSettings = new StrawpollSettings();
-                            pollSettings.Title = title;
-                            pollSettings.Options.AddRange(questionString.Split(';'));
-
-                            foreach (var s in pollSettings.Options)
-                            {
-                                Debug.WriteLine(s);
-                            }
-
-                            StrawpollPoll poll = await service.PostPoll(pollSettings);
-
-                            Debug.WriteLine("Post Complete");
-
-                            await PrintStrawPoll(e, poll);
-                        }
-                        catch (Exception)
-                        {
-                            if (Debugger.IsAttached)
-                                Debugger.Break();
-                        }
-                    });
-            });
-        }
         #endregion
 
         #region Connect/Disconnect
         public event NetworkChangedEventHandler NetworkChanged;
 
-        public void Connect()
-        {
-            m_client.ExecuteAndWait(async () =>
-            {
-                await m_client.Connect(Keys.UserToken, TokenType.Bot);
-
-                NetworkStatus = OnlineStatus.Online;
-                ConnectedTime = DateTime.UtcNow;
-                NetworkChanged?.Invoke(this, new NetworkChangedEventArgs(NetworkStatus));
-            });
-        }
-        public void Disconnect()
-        {
-            m_client.ExecuteAndWait(async () =>
-            {
-                await m_client.Disconnect();
-
-                NetworkStatus = OnlineStatus.Offline;
-                NetworkChanged?.Invoke(this, new NetworkChangedEventArgs(NetworkStatus));
-            });
-        }
-
         public async Task ConnectAsync()
         {
-            await m_client.Connect(Keys.UserToken, TokenType.Bot);
+            await m_client.LoginAsync(TokenType.Bot, Keys.UserToken);
 
             NetworkStatus = OnlineStatus.Online;
             ConnectedTime = DateTime.UtcNow;
             NetworkChanged?.Invoke(this, new NetworkChangedEventArgs(NetworkStatus));
+
+            await m_client.StartAsync();
         }
         public async Task DisconectAsync()
         {
-            await m_client.Disconnect();
+            await m_client.LogoutAsync();
 
             NetworkStatus = OnlineStatus.Offline;
             NetworkChanged?.Invoke(this, new NetworkChangedEventArgs(NetworkStatus));
+
+            await m_client.StopAsync();
         }
         #endregion
 
         #region Events
-        private void MessageReceived(object sender, MessageEventArgs e)
+        private Task MessageReceived(SocketMessage e)
         {
-            if (e.Message.IsMentioningMe(true))
-            {
-                Debug.WriteLine(e.Message);
-            }
+            Debug.WriteLine(e.Content);
+            return Task.CompletedTask;
         }
 
-        public event EventHandler<LogMessageEventArgs> LogReceived;
-        private void Log(object sender, LogMessageEventArgs e)
+        public event EventHandler<LogMessage> LogReceived;
+        private Task Log(LogMessage e)
         {
             Debug.WriteLine(e.Message);
-            LogReceived?.Invoke(sender, e);
+            LogReceived?.Invoke(this, e);
+
+            return Task.CompletedTask;
         }
         #endregion
     }
