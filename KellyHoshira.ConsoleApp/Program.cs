@@ -24,6 +24,7 @@ namespace KellyHoshira.ConsoleApp
 
             // Create the Bot
             Bot = new KellyHoshiraBot(keys);
+            await Bot.InitializeAsync();
             Bot.OnMessageReceived += Bot_OnMessageReceived;
             Bot.OnLogReceived += Bot_OnLogReceived;
             await Bot.ConnectAsync();

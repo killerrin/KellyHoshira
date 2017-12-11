@@ -9,7 +9,6 @@ namespace KellyHoshira.Core.Commands.General
 {
     public class GreetCommand : ModuleBase<SocketCommandContext>
     {
-
         [Command("greet")]
         [Summary("Greets a person. ... ex: `greet @username`")]
         [Alias("gr", "hi", "hello")]

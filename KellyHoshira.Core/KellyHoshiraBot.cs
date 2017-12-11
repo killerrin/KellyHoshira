@@ -1,16 +1,13 @@
 ﻿using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
-using FunSharp.Core.Games.Randomized;
-using FunSharp.Core.Games.Strawpoll;
+using KellyHoshira.Core.Commands.Fun;
+using KellyHoshira.Core.Commands.General;
 using KellyHoshira.Core.Events;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace KellyHoshira.Core
@@ -26,7 +23,8 @@ namespace KellyHoshira.Core
         public const string APP_WEBSITE = "https://killerrin.github.io/KellyHoshira/";
         public const string APP_SOURCE_CODE = "https://github.com/killerrin/KellyHoshira";
         #endregion
-        SecretKeys Keys { get; set; }
+        public SecretKeys Keys { get; set; }
+        public bool Initialized { get; private set; }
 
         public OnlineStatus NetworkStatus { get; protected set; }
         public DateTime ConnectedTime { get; protected set; }
@@ -48,6 +46,7 @@ namespace KellyHoshira.Core
         {
             // Set the Instance
             Instance = this;
+            Initialized = false;
 
             // Set the Secret Keys
             Keys = keys;
@@ -69,8 +68,41 @@ namespace KellyHoshira.Core
 
             // Setup Events
             m_client.MessageReceived += MessageReceived;
-            m_commandService.AddModulesAsync(System.Reflection.Assembly.GetEntryAssembly());
+        }
+
+        public async Task InitializeAsync()
+        {
+            if (Initialized) return;
             
+            // Add all Modules
+            //await m_commandService.AddModulesAsync(System.Reflection.Assembly.GetEntryAssembly());
+
+            // General Commands
+            await m_commandService.AddModuleAsync<ByeCommand>();
+            await m_commandService.AddModuleAsync<DeveloperCommand>();
+            await m_commandService.AddModuleAsync<GreetCommand>();
+            await m_commandService.AddModuleAsync<SayCommand>();
+            await m_commandService.AddModuleAsync<SpeakCommand>();
+            await m_commandService.AddModuleAsync<UptimeCommand>();
+
+            // Fun Commands
+            await m_commandService.AddModuleAsync<CoinTossCommand>();
+            await m_commandService.AddModuleAsync<DiceRollCommand>();
+            await m_commandService.AddModuleAsync<EightBallCommand>();
+            await m_commandService.AddModuleAsync<StrawPollCommand>();
+
+            Debug.WriteLine("Modules");
+            foreach (var item in m_commandService.Modules)
+            {
+                Debug.WriteLine(item.Name + "|" + item.Summary);
+            }
+            Debug.WriteLine("Commands");
+            foreach (var item in m_commandService.Commands)
+            {
+                Debug.WriteLine(item.Name + "|" + item.Summary);
+            }
+
+            Initialized = true;
         }
 
         #region Connect/Disconnect
@@ -78,6 +110,8 @@ namespace KellyHoshira.Core
 
         public async Task ConnectAsync()
         {
+            if (!Initialized) await InitializeAsync();
+
             await m_client.LoginAsync(TokenType.Bot, Keys.UserToken);
 
             NetworkStatus = OnlineStatus.Online;
@@ -89,11 +123,10 @@ namespace KellyHoshira.Core
         public async Task DisconectAsync()
         {
             await m_client.LogoutAsync();
+            await m_client.StopAsync();
 
             NetworkStatus = OnlineStatus.Offline;
             NetworkChanged?.Invoke(this, new NetworkChangedEventArgs(NetworkStatus));
-
-            await m_client.StopAsync();
         }
         #endregion
 
