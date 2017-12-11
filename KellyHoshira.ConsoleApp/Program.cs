@@ -1,4 +1,5 @@
 ﻿using Discord;
+using Discord.WebSocket;
 using KellyHoshira.Core;
 using System;
 using System.Collections.Generic;
@@ -23,20 +24,19 @@ namespace KellyHoshira.ConsoleApp
 
             // Create the Bot
             Bot = new KellyHoshiraBot(keys);
-            Bot.Client.MessageReceived += Client_MessageReceived;
-            Bot.LogReceived += Bot_LogReceived;
+            Bot.OnMessageReceived += Bot_OnMessageReceived;
+            Bot.OnLogReceived += Bot_OnLogReceived;
             await Bot.ConnectAsync();
 
             await Task.Delay(-1);
         }
 
-        private Task Client_MessageReceived(Discord.WebSocket.SocketMessage arg)
+        private void Bot_OnMessageReceived(object sender, SocketUserMessage e)
         {
-            Console.WriteLine(arg.Content);
-            return Task.CompletedTask;
+            Console.WriteLine(e.Content);
         }
 
-        private void Bot_LogReceived(object sender, LogMessage e)
+        private void Bot_OnLogReceived(object sender, LogMessage e)
         {
             Console.WriteLine(e.Message);
         }

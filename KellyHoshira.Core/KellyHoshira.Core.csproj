@@ -150,6 +150,13 @@
     <Compile Include="Commands\Fun\DiceRollCommand.cs" />
     <Compile Include="Commands\Fun\CoinTossCommand.cs" />
     <Compile Include="Commands\Fun\EightBallCommand.cs" />
+    <Compile Include="Commands\General\GreetCommand.cs" />
+    <Compile Include="Commands\General\ByeCommand.cs" />
+    <Compile Include="Commands\General\DeveloperCommand.cs" />
+    <Compile Include="Commands\General\UptimeCommand.cs" />
+    <Compile Include="Commands\General\SpeakCommand.cs" />
+    <Compile Include="Commands\General\SayCommand.cs" />
+    <Compile Include="Commands\General\SampleCommand.cs" />
     <Compile Include="Events\NetworkChangedEventArgs.cs" />
     <Compile Include="KellyHoshiraBot.cs" />
     <Compile Include="OnlineStatus.cs" />
@@ -165,8 +172,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Commands\General\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

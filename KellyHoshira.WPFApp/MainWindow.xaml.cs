@@ -18,6 +18,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Hardcodet.Wpf.TaskbarNotification;
+using Discord.WebSocket;
 
 namespace KellyHoshira.WPFApp
 {
@@ -39,8 +40,8 @@ namespace KellyHoshira.WPFApp
 
             // Create the Bot
             Bot = new KellyHoshiraBot(keys);
-            Bot.Client.MessageReceived += Client_MessageReceived;
-            Bot.LogReceived += Bot_LogReceived;
+            Bot.OnMessageReceived += Bot_OnMessageReceived;
+            Bot.OnLogReceived += Bot_OnLogReceived;
             Bot.NetworkChanged += Bot_NetworkChanged;
 
             // Initialize the Program
@@ -138,11 +139,9 @@ namespace KellyHoshira.WPFApp
                     }
                 })
             );
-
-
         }
 
-        private void Client_MessageReceived(object sender, MessageEventArgs e)
+        private void Bot_OnMessageReceived(object sender, SocketUserMessage e)
         {
             if (Application.Current == null) return;
 
@@ -150,15 +149,12 @@ namespace KellyHoshira.WPFApp
                 DispatcherPriority.Background,
                 new Action(() =>
                 {
-                    if (e.Message.IsMentioningMe(true))
-                    {
-                        Messages.Add($"{DateTime.Now} - {e.Message}");
-                    }
+                    Messages.Add($"{DateTime.Now} - {e.Content}");
                 })
             );
         }
 
-        private void Bot_LogReceived(object sender, LogMessageEventArgs e)
+        private void Bot_OnLogReceived(object sender, LogMessage e)
         {
             if (Application.Current == null) return;
 
